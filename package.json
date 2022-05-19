@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/amkorousagi/trace_table_generator#readme",
   "dependencies": {
-    "shelljs": "^0.8.5"
+    "shelljs": "^0.8.5",
+    "xlsx": "^0.18.5"
   }
 }

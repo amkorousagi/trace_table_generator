@@ -6,7 +6,7 @@ int main(void){
 
 
     int arr2[4][3][2]={0,};
-    char s[]= "aa";
+    //char s[2][200]= {"aaddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss","aaddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"};
     char s2[] ="123456";
     char s3[]="{=}";
     char s4[2][2]={"ds","aa"};
