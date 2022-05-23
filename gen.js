@@ -29,7 +29,7 @@ const remover = (w) => {
 const main = async () => {
   const c = spawn("gdb", [".\\a.exe"]);
   //c.stdout.pipe(process.stdout);
-  c.stdout.setMaxListeners(100);
+  c.stdout.setMaxListeners(1000);
 
   const cm = () => {
     return new Promise((resolve, reject) => {
@@ -114,7 +114,33 @@ const main = async () => {
     // 변수리스트 받고 각각 print. newline으로 split하는 대신. 나머진 local과 같음
     c.stdin.write("info variables\n");
     data = await sum_cm();
-    console.log(data); //??
+
+    data = data.substring(
+      data.indexOf("File .\\" + "sample.c" + ":"),
+      data.indexOf("Non-debugging symbols:")
+    );
+    //console.log(data);
+    let tg = data.split("\n");
+    let tgn = [];
+    for (let i = 0; i < tg.length; i++) {
+      if (tg[i].indexOf(";") != -1) {
+        let tt = tg[i].split(" ");
+        tgn.push(tt[tt.length - 1].substring(0, tt[tt.length - 1].length - 2));
+      }
+    }
+    //console.log({ tgn });
+
+    for (let i = 0; i < tgn.length; i++) {
+      if (tgn[i].indexOf("[") != -1) {
+        tgn[i] = tgn[i].substring(0, tgn[i].indexOf("["));
+      }
+      c.stdin.write("print " + tgn[i] + "\n");
+      data = await sum_cm();
+      const ttt = data.split(" ")[0];
+      data = data.replace(ttt, tgn[i]);
+      console.log(data);
+      words = words.concat(data.split("\n"));
+    }
 
     let mergedwords = [];
     //한줄로 만들고
@@ -141,6 +167,60 @@ const main = async () => {
         // instring이랑 " , {}등을 잘 활용해서 풀기 c#가서 스택으로 잘해보든지
         locals[cnt][token[0].replace(/\s/g, "")] = content.replace("\r", "");
         vs.add(token[0].replace(/\s/g, ""));
+
+        let instring = false;
+        let index = [];
+        let start = -1;
+        let max = 0;
+        for (let j = 0; j < content.length; j++) {
+          if (content[j] == "\\") {
+            continue;
+          }
+          if (instring && content[j] != '"') {
+            continue;
+          }
+
+          if (content[j] == "{") {
+            index.push(0);
+            if (max < index.length) {
+              max = index.length;
+            }
+            if (max == index.length) {
+              start = j + 1;
+            }
+          } else if (content[j] == "}") {
+            if (max == index.length) {
+              let name = token[0].replace(/\s/g, "");
+              for (let k = 0; k < index.length; k++) {
+                name += "[" + index[k] + "]";
+              }
+              let value = content.substring(start, j);
+              locals[cnt][name] = value;
+              vs.add(name);
+            }
+            index.pop();
+            index[index.length - 1]++;
+          } else if (content[j] == '"') {
+            instring = !instring;
+            if (start == -1) {
+              start = j;
+            }
+          } else if (start == -1) {
+            start = j;
+          } else if (content[j] == ",") {
+            if (max == index.length) {
+              let name = token[0].replace(/\s/g, "");
+              for (let k = 0; k < index.length; k++) {
+                name += "[" + index[k] + "]";
+              }
+              let value = content.substring(start, j);
+              locals[cnt][name] = value;
+              vs.add(name);
+              index[index.length - 1]++;
+              start = j + 1;
+            }
+          }
+        }
       } else {
         locals[cnt][token[0].replace(/\s/g, "")] = content.replace("\r", "");
         vs.add(token[0].replace(/\s/g, ""));
@@ -173,7 +253,7 @@ const main = async () => {
   }
   // console.log(output);
   // console.log(info);
-  // console.log(locals);
+  console.log(locals);
   // console.log(vs);
   // console.log(cnt);
 
@@ -195,6 +275,7 @@ const main = async () => {
   xlsx.utils.book_append_sheet(wb, ws, "data");
   // const out = xlsx.write(wb, { bookType: "xlsx", type: "binary" });
   xlsx.writeFile(wb, "table.xlsx", { bookType: "xlsx", type: "binary" });
+  console.log("end");
 };
 
 main();
