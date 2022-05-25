@@ -15,6 +15,9 @@ int main(void){
     char s4[2][2]={"ds","aa"};
     int arr[11] = {0,1,2,3,4,5,6,7,8,9,10};
     int a = 27;
+    arr[101] = 1;
+    int* pp = NULL;
+    printf("%d",*pp);
     printf("%d",a);fflush(stdout);
     printf("%d",a+1);fflush(stdout);
     printf("%d",a+2);fflush(stdout);

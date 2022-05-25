@@ -138,7 +138,7 @@ const main = async () => {
       data = await sum_cm();
       const ttt = data.split(" ")[0];
       data = data.replace(ttt, tgn[i]);
-      console.log(data);
+      //console.log(data);
       words = words.concat(data.split("\n"));
     }
 
@@ -231,6 +231,7 @@ const main = async () => {
     // 출력값
     c.stdin.write("n\n");
     data = await sum_cm();
+    console.log(data);
     words = data.split("\t");
     const temp = "" + (parseInt(info["line"][cnt]) + 1);
     token = words[0].replace("\t", "");
@@ -253,7 +254,7 @@ const main = async () => {
   }
   // console.log(output);
   // console.log(info);
-  console.log(locals);
+  // console.log(locals);
   // console.log(vs);
   // console.log(cnt);
 
