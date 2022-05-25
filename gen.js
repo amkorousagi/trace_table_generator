@@ -1,3 +1,5 @@
+// gcc sample.c -g3 -fsanitize=address -fsanitize=leak -fsanitize=undefined^C
+
 const { spawn } = require("child_process");
 const xlsx = require("xlsx");
 const isassign = (w) => {
