@@ -1,26 +1,20 @@
 #include <stdio.h>
 
-int myg = 7, dd;
-int ssaa[11] = {0,1,2,3,4,5,6,7,8,9,10};
-int arr2s[4][3][2]={0,};
+int myg = 7;
 int main(void){
 
-
-    int arr2[4][3][2]={0,};
-    //char s[2][200]= {"aaddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss","aaddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"};
-    char s2[] ="123456";
-    char s3[]="{=}";
-    char s5 = '\"';
-    char s6[] = "\"";
-    char s4[2][2]={"ds","aa"};
-    int arr[11] = {0,1,2,3,4,5,6,7,8,9,10};
-    int a = 27;
-    arr[101] = 1;
-    int* pp = NULL;
-    printf("%d",*pp);
+    int a = 0, b = 1, c= 2;
+    a = b + c;
     printf("%d",a);fflush(stdout);
-    printf("%d",a+1);fflush(stdout);
     printf("%d",a+2);fflush(stdout);
-    //arr2[0][0][0] = 1;
+
+    int arr[2][2] = {0,};
+    int arr2[10] = {0,};
+    int i=0;
+    for(i=0;i<=10;i++){
+        arr2[i] = 1;
+    }
+
+    arr2[1] = arr2[2] + arr2[3]; 
     return 0;
 }

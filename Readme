@@ -1,0 +1,2 @@
+gcc -g3 sample.c -fsanitize=address -fsanitize=leak -fsanitize=undefined
+node gen.js

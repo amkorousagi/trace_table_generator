@@ -1,6 +1,55 @@
-sample.c:18:8: runtime error: index 101 out of bounds for type 'int [11]'
-sample.c:18:14: runtime error: store to address 0x7fffffffdb54 with insufficient space for an object of type 'int'
-0x7fffffffdb54: note: pointer points here
-  28 dc ff ff ff 7f 00 00  09 63 55 55 55 55 00 00  08 8d 55 55 55 55 00 00  40 d0 ff f7 ff 7f 00 00
+sample.c:15:13: runtime error: index 10 out of bounds for type 'int [10]'
+sample.c:15:17: runtime error: store to address 0x7fffffffda98 with insufficient space for an object of type 'int'
+0x7fffffffda98: note: pointer points here
+ 01 00 00 00  00 86 4f 16 fa a9 a5 40  00 00 00 00 00 00 00 00  20 00 00 00 70 60 00 00  41 00 00 00
               ^ 
-sample.c:20:5: runtime error: load of null pointer of type 'int'
+=================================================================
+==133483==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7fffffffda98 at pc 0x5555555566af bp 0x7fffffffda00 sp 0x7fffffffd9f0
+WRITE of size 4 at 0x7fffffffda98 thread T0
+    #0 0x5555555566ae in main /home/psc/trace_table_generator/sample.c:15
+    #1 0x7ffff6d8fd8f in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+    #2 0x7ffff6d8fe3f in __libc_start_main_impl ../csu/libc-start.c:392
+    #3 0x555555556264 in _start (/home/psc/trace_table_generator/a.out+0x2264)
+
+Address 0x7fffffffda98 is located in stack of thread T0 at offset 120 in frame
+    #0 0x555555556338 in main /home/psc/trace_table_generator/sample.c:4
+
+  This frame has 2 object(s):
+    [48, 64) 'arr' (line 11)
+    [80, 120) 'arr2' (line 12) <== Memory access at offset 120 overflows this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-buffer-overflow /home/psc/trace_table_generator/sample.c:15 in main
+Shadow bytes around the buggy address:
+  0x10007fff7b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10007fff7b10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10007fff7b20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10007fff7b30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10007fff7b40: 00 00 00 00 f1 f1 f1 f1 f1 f1 00 00 f2 f2 00 00
+=>0x10007fff7b50: 00 00 00[f3]f3 f3 f3 f3 00 00 00 00 00 00 00 00
+  0x10007fff7b60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10007fff7b70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10007fff7b80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10007fff7b90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x10007fff7ba0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+  Shadow gap:              cc
+==133483==ABORTING
