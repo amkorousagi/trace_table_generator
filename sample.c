@@ -21,5 +21,6 @@ int main(void){
     printf("%d",a);fflush(stdout);
     printf("%d",a+1);fflush(stdout);
     printf("%d",a+2);fflush(stdout);
+    //arr2[0][0][0] = 1;
     return 0;
 }

@@ -1,0 +1,6 @@
+sample.c:18:8: runtime error: index 101 out of bounds for type 'int [11]'
+sample.c:18:14: runtime error: store to address 0x7fffffffdb54 with insufficient space for an object of type 'int'
+0x7fffffffdb54: note: pointer points here
+  28 dc ff ff ff 7f 00 00  09 63 55 55 55 55 00 00  08 8d 55 55 55 55 00 00  40 d0 ff f7 ff 7f 00 00
+              ^ 
+sample.c:20:5: runtime error: load of null pointer of type 'int'

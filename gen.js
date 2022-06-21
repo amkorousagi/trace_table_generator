@@ -1,7 +1,10 @@
 // gcc sample.c -g3 -fsanitize=address -fsanitize=leak -fsanitize=undefined^C
-
+// gcc -g3 sample.c -fsanitize=address -fsanitize=leak -fsanitize=undefined
+const { EventEmitter } = require("events");
 const { spawn } = require("child_process");
 const xlsx = require("xlsx");
+const { exit } = require("shelljs");
+const fs = require("fs");
 const isassign = (w) => {
   let instring = false;
   for (let i = 0; i < w.length; i++) {
@@ -27,10 +30,13 @@ const remover = (w) => {
   }
   return neww;
 };
-
 const main = async () => {
-  const c = spawn("gdb", [".\\a.exe"]);
-  //c.stdout.pipe(process.stdout);
+  const emitter = new EventEmitter();
+  const c = spawn("gdb", ["a.out"]);
+  //c.stderr.pipe(process.stdout);
+
+  const lg = fs.createWriteStream("./log.err", { flag: "w" });
+  c.stderr.pipe(lg);
   c.stdout.setMaxListeners(1000);
 
   const cm = () => {
@@ -47,9 +53,30 @@ const main = async () => {
 
       while (1) {
         sum += await cm();
+        emitter.emit("data");
         if (sum.indexOf("(gdb)") != -1) {
           break;
         }
+      }
+      resolve(sum);
+    });
+  };
+
+  const cmerr = () => {
+    return new Promise((resolve, reject) => {
+      c.stderr.on("err", (data) => {
+        resolve(data);
+      });
+    });
+  };
+
+  const sum_cmerr = async () => {
+    return new Promise(async (resolve, reject) => {
+      let sum = "";
+
+      while (1) {
+        sum += await cm();
+        emitter.emit("err");
       }
       resolve(sum);
     });
@@ -61,14 +88,19 @@ const main = async () => {
   let args = {};
   let info = {};
   let output = {};
+  let error = {};
   info["func"] = [""];
   info["line"] = [0];
 
   let data = await sum_cm();
-
+  console.log(data);
   c.stdin.write("set print repeats 0\n");
   data = await sum_cm();
   //console.log(data);
+
+  // c.stdin.write("run\n");
+  // data = await sum_cm();
+  // console.log(data);
 
   c.stdin.write("b 1\n");
   data = await sum_cm();
@@ -88,6 +120,7 @@ const main = async () => {
     // 라인, 함수
     c.stdin.write("where\n");
     data = await sum_cm();
+    //console.log(data);
     words = data.split(" ");
     if (words[2].indexOf("0") != 0) {
       info["func"].push(words[2]);
@@ -107,7 +140,7 @@ const main = async () => {
     c.stdin.write("info args\n");
     data = await sum_cm();
     if (data.indexOf("No arguments.") != 0) {
-      words = data.split("\n");
+      words = word.concat(data.split("\n"));
     } else {
       //do not anything
     }
@@ -118,7 +151,7 @@ const main = async () => {
     data = await sum_cm();
 
     data = data.substring(
-      data.indexOf("File .\\" + "sample.c" + ":"),
+      data.indexOf("File " + "sample.c" + ":"),
       data.indexOf("Non-debugging symbols:")
     );
     //console.log(data);
@@ -127,10 +160,10 @@ const main = async () => {
     for (let i = 0; i < tg.length; i++) {
       if (tg[i].indexOf(";") != -1) {
         let tt = tg[i].split(" ");
-        tgn.push(tt[tt.length - 1].substring(0, tt[tt.length - 1].length - 2));
+        tgn.push(tt[tt.length - 1].substring(0, tt[tt.length - 1].length - 1));
       }
     }
-    //console.log({ tgn });
+    console.log({ tgn });
 
     for (let i = 0; i < tgn.length; i++) {
       if (tgn[i].indexOf("[") != -1) {
@@ -239,10 +272,12 @@ const main = async () => {
     token = words[0].replace("\t", "");
     if (token.length > temp.length) {
       const v = token.substring(0, token.length - temp.length);
-      if (v.indexOf("tmainCRTStartup") != -1) {
+      if (v.indexOf("__libc_start_call_main") != -1) {
         break;
       }
-      if (v) {
+      if (v.indexOf("error") != -1) {
+        error[cnt] = v;
+      } else if (v) {
         output[cnt] = v;
       }
     }
@@ -260,13 +295,13 @@ const main = async () => {
   // console.log(vs);
   // console.log(cnt);
 
-  const aoa = [["line", "func", "output"]];
+  const aoa = [["line", "func", "output", "error"]];
   for (let item of vs) {
     aoa[0].push(item);
   }
 
   for (let i = 1; i <= cnt; i++) {
-    const arr = [info["line"][i], info["func"][i], output[i]];
+    const arr = [info["line"][i], info["func"][i], output[i], error[i]];
     for (let item of vs) {
       arr.push(locals[i][item]);
     }
@@ -279,6 +314,7 @@ const main = async () => {
   // const out = xlsx.write(wb, { bookType: "xlsx", type: "binary" });
   xlsx.writeFile(wb, "table.xlsx", { bookType: "xlsx", type: "binary" });
   console.log("end");
+  exit(0);
 };
 
 main();
